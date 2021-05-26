@@ -1,6 +1,7 @@
 import discord
 import environment
 import discordSignalitics
+import modules.moduleHandler
 
 class DiscordMessageBot(discord.Client):
     # Maps channels's string name to their ID 
@@ -9,6 +10,8 @@ class DiscordMessageBot(discord.Client):
     TOKEN = ""
     # Command symbol
     CMD_SYMBOL = "%"
+    # Module handler
+    moduleHandler = ""
 
     def __init__(self, token, channelsDict):
         """
@@ -22,6 +25,7 @@ class DiscordMessageBot(discord.Client):
         super().__init__()
         self.channels = channelsDict
         self.TOKEN = token
+        self.moduleHandler = modules.moduleHandler.ModuleHandler(environment.ENABLED_MODULES)
         self.run()
 
     async def log(self, symbol, message):
@@ -48,7 +52,6 @@ class DiscordMessageBot(discord.Client):
         Run the bot. Once this function is called, execution is blocked.
         """
         return super().run(self.TOKEN)
-
     
     def get_channel_from_name(self, channelName):
         """
@@ -72,7 +75,6 @@ class DiscordMessageBot(discord.Client):
         channel = self.get_channel_from_name(channelName)
         await channel.send(message)
         
-
     async def on_message(self, message):
         """
         Reaction when a message is sent
@@ -83,8 +85,9 @@ class DiscordMessageBot(discord.Client):
         """
         # If it's a command message
         if message.content.startswith('%'):
-            command = message.content.split(" ")[0][1:]
-            await message.channel.send("I know you're using %s command, but I can't handle that yet..." % command)
+            command = message.content[1:].split(" ")
+            if len(command) > 0:
+                self.moduleHandler.command(command,message)
 
     async def on_ready(self):
         """
@@ -96,6 +99,9 @@ class DiscordMessageBot(discord.Client):
         await self.log(discordSignalitics.validation, "Now online")
         # Setup discord presence
         await self.change_presence(activity=discord.Game(name="Scrapping for master"))
-        # TODO : Implement an infinite loop
+        # Assign real channels to modules
+        self.moduleHandler.assignChannels(self)
+        # Apply module scrapping
+        self.moduleHandler.scrap(self)
 
 bot = DiscordMessageBot(environment.TOKEN, environment.CHANNELS)
