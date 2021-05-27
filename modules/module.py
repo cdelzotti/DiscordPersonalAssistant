@@ -13,6 +13,14 @@ class Module:
     name = ""
     # Interval between scrapping actions
     triggerInterval = 0
+    # Scrapping asyncio task
+    scrapTask = ""
+    # Command asyncio task
+    commandTask = ""
+    # Help text
+    help = ""
+    # Active status
+    activated = False
 
     def __init__(self, channel, triggerInterval):
         self.channel = channel
@@ -22,13 +30,17 @@ class Module:
         """
         Function called on module initialization
         """
-        pass
+        self.activated = True
+        self.scrapTask = asyncio.create_task(self.runScrap())
 
     async def close(self):
         """
         Function called on module shutdown
         """
-        pass
+        self.activated = False
+        self.scrapTask.cancel()
+        if self.commandTask != "":
+            self.commandTask.cancel()
 
     async def runInit(self):
         """
@@ -87,3 +99,5 @@ class Module:
         if args[0] == "setTriggerInterval":
             self.triggerInterval = int(args[1])
             await originalMessage.channel.send("Successfully set triggering interval to %s" % args[1])
+        elif args[0] == "help":
+            await originalMessage.channel.send(self.help)

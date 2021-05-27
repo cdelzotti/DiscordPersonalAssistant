@@ -25,7 +25,7 @@ class DiscordMessageBot(discord.Client):
         super().__init__()
         self.channels = channelsDict
         self.TOKEN = token
-        self.moduleHandler = modules.moduleHandler.ModuleHandler(environment.ENABLED_MODULES)
+        self.moduleHandler = modules.moduleHandler.ModuleHandler(environment.ENABLED_MODULES, self.CMD_SYMBOL)
         self.run()
 
     async def log(self, symbol, message):
@@ -111,8 +111,6 @@ class DiscordMessageBot(discord.Client):
         self.moduleHandler.assignChannels(self)
         # Init modules
         await self.moduleHandler.init()
-        # Apply module scrapping
-        self.moduleHandler.scrap()
 
 # Start bot
 bot = DiscordMessageBot(environment.TOKEN, environment.CHANNELS)
