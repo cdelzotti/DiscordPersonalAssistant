@@ -114,4 +114,5 @@ class DiscordMessageBot(discord.Client):
         # Apply module scrapping
         self.moduleHandler.scrap()
 
+# Start bot
 bot = DiscordMessageBot(environment.TOKEN, environment.CHANNELS)
