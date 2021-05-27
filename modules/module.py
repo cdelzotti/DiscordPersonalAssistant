@@ -18,6 +18,36 @@ class Module:
         self.channel = channel
         self.triggerInterval = triggerInterval
 
+    async def init(self):
+        """
+        Function called on module initialization
+        """
+        pass
+
+    async def close(self):
+        """
+        Function called on module shutdown
+        """
+        pass
+
+    async def runInit(self):
+        """
+        Run init function in a trycatch
+        """
+        try:
+            await self.init()
+        except Exception as e:
+            self.discordBot.triggerError("I encountered an error while initializing %s : %s" % (self.name, e))
+
+    async def runClose(self):
+        """
+        Run close function in a trycatch
+        """
+        try:
+            await self.close()
+        except Exception as e:
+            self.discordBot.triggerError("I encountered an error while closing %s : %s" % (self.name, e))
+
     async def scrap(self):
         """
         Periodic action executed every `triggerInterval` seconds

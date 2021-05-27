@@ -89,6 +89,14 @@ class DiscordMessageBot(discord.Client):
             if len(command) > 0:
                 self.moduleHandler.command(command,message)
 
+    async def close(self):
+        """
+        Run every module closing function before closing bot
+        """
+        await self.moduleHandler.close()
+        await self.log(discordSignalitics.log_out, "Now offline")
+        return await super().close()
+
     async def on_ready(self):
         """
         Code executed after bot initialization
@@ -101,7 +109,9 @@ class DiscordMessageBot(discord.Client):
         await self.change_presence(activity=discord.Game(name="Scrapping for master"))
         # Assign real channels to modules
         self.moduleHandler.assignChannels(self)
+        # Init modules
+        await self.moduleHandler.init()
         # Apply module scrapping
-        self.moduleHandler.scrap(self)
+        self.moduleHandler.scrap()
 
 bot = DiscordMessageBot(environment.TOKEN, environment.CHANNELS)

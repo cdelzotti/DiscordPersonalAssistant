@@ -13,6 +13,20 @@ class ModuleHandler:
         """
         self.modules = moduleList
 
+    async def init(self):
+        """
+        Initializes every module
+        """
+        for module in self.modules:
+            await module.runInit()
+
+    async def close(self):
+        """
+        Closes every module
+        """
+        for module in self.modules:
+            await module.runClose()
+
     def scrap(self):
         """
         Initialize an async task for every module's crap function
