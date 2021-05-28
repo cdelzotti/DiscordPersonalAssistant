@@ -1,5 +1,5 @@
 import asyncio
-
+import sqlite3
 import discord
 
 class Module:
@@ -21,10 +21,14 @@ class Module:
     help = ""
     # Active status
     activated = False
+    # Database cursor
+    dbConnection = ""
 
     def __init__(self, channel, triggerInterval):
         self.channel = channel
         self.triggerInterval = triggerInterval
+        self.dbConnection = sqlite3.connect("%s.db" % self.name)
+
 
     async def init(self):
         """
@@ -37,10 +41,13 @@ class Module:
         """
         Function called on module shutdown
         """
+        # Interrups current tasks
         self.activated = False
         self.scrapTask.cancel()
         if self.commandTask != "":
             self.commandTask.cancel()
+        # Close database connection
+        self.dbConnection.close()
 
     async def runInit(self):
         """
